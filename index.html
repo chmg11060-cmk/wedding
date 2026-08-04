@@ -1166,6 +1166,56 @@
     }
 
     /* ━━━━━━━━━━━━━━━━━━━━━━━━
+       떨어지는 하트
+       ✦ 개수 : 아래 스크립트의 HEART_COUNT 값
+       ✦ 글자 뒤로 완전히 보내려면 .hearts 의 z-index 를 -1 로 바꾸세요
+         (단, 사진·색이 깔린 구간에서는 보이지 않게 됩니다)
+    ━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .hearts {
+      position: fixed;
+      inset: 0;
+      z-index: 700;          /* 음악버튼(900) · 팝업(9500) · 라이트박스(9999) 보다 아래 */
+      overflow: hidden;
+      pointer-events: none;  /* 하트 위로도 버튼이 눌립니다 */
+    }
+
+    .heart {
+      position: absolute;
+      top: 0;
+      will-change: transform;
+      animation-name: heartFall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    .heart i {
+      display: block;
+      font-style: normal;
+      line-height: 1;
+      animation-name: heartSway;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+    }
+
+    @keyframes heartFall {
+      0%   { transform: translateY(-12vh); opacity: 0; }
+      8%   { opacity: 1; }
+      88%  { opacity: 1; }
+      100% { transform: translateY(108vh); opacity: 0; }
+    }
+
+    @keyframes heartSway {
+      from { transform: translateX(-14px) rotate(-14deg); }
+      to   { transform: translateX(14px)  rotate(14deg); }
+    }
+
+    /* 기기에서 '동작 줄이기'를 켠 경우 애니메이션 제거 */
+    @media (prefers-reduced-motion: reduce) {
+      .hearts { display: none; }
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━
        BGM (배경음악)
     ━━━━━━━━━━━━━━━━━━━━━━━━ */
     .music-btn {
@@ -1526,6 +1576,10 @@
   </style>
 </head>
 <body>
+
+<!-- ═══ 떨어지는 하트 (내용은 스크립트가 생성) ═══ -->
+<div class="hearts" id="hearts" aria-hidden="true"></div>
+
 
 <!-- ═══ 배경음악 ═══
      ✦ 저장소에 music 폴더를 만들고 그 안에 bgm.mp3 를 올리면 됩니다.  (music/bgm.mp3)
@@ -2296,6 +2350,36 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && document.getElementById('rsvpModal').classList.contains('open')) closeRSVP();
   });
+
+  /* ── 떨어지는 하트 ── */
+  (function() {
+    const HEART_COUNT = 25;                                   /* 개수 */
+    const COLORS = ['#b8975a', '#d4b47a', '#c47d6a', '#a0614e']; /* 골드 2 · 로즈 2 */
+    const wrap = document.getElementById('hearts');
+    if (!wrap || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const rand = (min, max) => Math.random() * (max - min) + min;
+
+    for (let i = 0; i < HEART_COUNT; i++) {
+      const fall = rand(11, 19);          /* 떨어지는 시간(초) */
+      const h = document.createElement('span');
+      h.className = 'heart';
+      h.style.left              = rand(0, 100) + '%';
+      h.style.animationDuration = fall.toFixed(2) + 's';
+      h.style.animationDelay    = (-rand(0, fall)).toFixed(2) + 's';  /* 처음부터 흩어져 있도록 */
+
+      const inner = document.createElement('i');
+      inner.textContent            = '♥';
+      inner.style.fontSize         = rand(9, 18).toFixed(1) + 'px';
+      inner.style.color            = COLORS[i % COLORS.length];
+      inner.style.opacity          = rand(.4, .55).toFixed(2);
+      inner.style.animationDuration = rand(2.6, 5.2).toFixed(2) + 's';
+      inner.style.animationDelay    = (-rand(0, 4)).toFixed(2) + 's';
+
+      h.appendChild(inner);
+      wrap.appendChild(h);
+    }
+  })();
 
   /* ── 배경음악 (music/bgm.mp3) ── */
   const BGM_SRC  = 'music/bgm.mp3';
