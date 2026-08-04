@@ -1210,11 +1210,6 @@
       to   { transform: translateX(14px)  rotate(14deg); }
     }
 
-    /* 기기에서 '동작 줄이기'를 켠 경우 애니메이션 제거 */
-    @media (prefers-reduced-motion: reduce) {
-      .hearts { display: none; }
-    }
-
     /* ━━━━━━━━━━━━━━━━━━━━━━━━
        BGM (배경음악)
     ━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -2356,7 +2351,7 @@
     const HEART_COUNT = 25;                                   /* 개수 */
     const COLORS = ['#b8975a', '#d4b47a', '#c47d6a', '#a0614e']; /* 골드 2 · 로즈 2 */
     const wrap = document.getElementById('hearts');
-    if (!wrap || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!wrap) return;
 
     const rand = (min, max) => Math.random() * (max - min) + min;
 
